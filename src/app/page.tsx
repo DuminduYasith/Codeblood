@@ -1,0 +1,20 @@
+import Link from 'next/link';
+import Image from 'next/image';
+import { ArrowRight, CalendarDays, Compass, HeartHandshake, Leaf, Mountain, UsersRound } from 'lucide-react';
+import { AlbumCard, EventCard, Eyebrow, SectionTitle } from '@/components/UI';
+import { albums, events } from '@/lib/data';
+export default function HomePage(){return <>
+<section className="shell home-hero-wrap"><div className="home-hero">
+ <div className="home-hero-content"><span className="hero-kicker">University of Moratuwa</span><h1>Take the trail.<br/><span>Find your people.</span></h1><p>Discover the extraordinary outdoors with Mora Hiking Club — hiking, trekking, adventure, and a community that cares for nature.</p><div className="button-row"><Link href="/events" className="button button-neon">Explore Upcoming Hikes <ArrowRight size={18}/></Link><Link href="/membership" className="button button-white">Join the Club</Link></div></div>
+ <div className="home-hero-art"><Image src="/images/summit.jpg" alt="Hiker celebrating at a mountain summit" fill priority sizes="(max-width: 880px) 100vw, 44vw"/><div className="hero-photo-overlay"/><div className="hero-art-label">The Trail Never Ends</div></div>
+</div></section>
+<section className="section shell"><SectionTitle eyebrow="Explore more" title="Your next adventure starts here" description="Discover more than a destination. Find your trail, your people, and your purpose."/><div className="features-grid">
+<Link href="/events" className="feature-card"><span className="feature-icon"><Compass size={28}/></span><h3>Upcoming Adventures</h3><p>Explore new trails and find the perfect hike.</p><span className="text-link">Browse hikes <ArrowRight size={16}/></span></Link>
+<Link href="/membership" className="feature-card"><span className="feature-icon"><UsersRound size={28}/></span><h3>Become a Member</h3><p>Grow with a community that explores together.</p><span className="text-link">Membership <ArrowRight size={16}/></span></Link>
+<Link href="/media" className="feature-card"><span className="feature-icon"><Mountain size={28}/></span><h3>Trail Stories</h3><p>Relive our favourite moments on the trail.</p><span className="text-link">View gallery <ArrowRight size={16}/></span></Link>
+</div></section>
+<section className="section tinted"><div className="shell"><SectionTitle eyebrow="On the calendar" title="Adventures coming up" description="A preview of our sample upcoming events." action={{label:'View all events',href:'/events'}}/><div className="cards-grid three">{events.slice(0,3).map(e=><EventCard key={e.slug} event={e}/>)}</div></div></section>
+<section className="section shell"><div className="split-story"><div className="story-photo"><Image src="/images/team.jpg" alt="Hikers exploring together" fill sizes="(max-width:880px) 100vw, 50vw"/></div><div className="story-content"><Eyebrow>Adventure with a purpose</Eyebrow><h2>More than hiking. A community that makes a difference.</h2><p>We empower human potential, embrace diversity, conserve ecosystems and act sustainably on every trail.</p><div className="value-mini"><span><HeartHandshake size={19}/> People and belonging</span><span><Leaf size={19}/> Respect for nature</span><span><CalendarDays size={19}/> Memories worth sharing</span></div><Link href="/about" className="button button-pine">Meet Mora Hiking Club <ArrowRight size={18}/></Link></div></div></section>
+<section className="section tinted"><div className="shell"><SectionTitle eyebrow="Community memories" title="Stories worth sharing" description="Real hiking photography from Mora Hiking Club members." action={{label:'Explore media',href:'/media'}}/><div className="cards-grid four">{albums.map(a=><AlbumCard key={a.slug} album={a}/>)}</div></div></section>
+<section className="shell section"><div className="cta-banner"><div><Eyebrow>The trail never ends</Eyebrow><h2>Ready for your next adventure?</h2><p>There is always a new trail waiting to be explored.</p></div><Link href="/membership" className="button button-neon">Join the community <ArrowRight size={18}/></Link></div></section>
+</>}
