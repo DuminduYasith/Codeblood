@@ -1,10 +1,10 @@
 import type { Metadata } from 'next';
 import { PageHero } from '@/components/UI';
-import EventsViewManager from '@/components/EventsViewManager';
+import EventManagementStudio from '@/components/EventManagementStudio';
 
 export const metadata: Metadata = {
-  title: 'Hiking Events & Live Trail Tracking',
-  description: 'Explore upcoming hiking adventures, live Google Map event tracking, and trail navigation with Mora Hiking Club.',
+  title: 'Hiking Events, Calendar & Live Tracking',
+  description: 'Explore upcoming hiking events calendar, admin route optimization, and real-time Google Map trail tracking with Mora Hiking Club.',
 };
 
 export default function EventsPage() {
@@ -13,10 +13,10 @@ export default function EventsPage() {
       <PageHero
         eyebrow="Mora Hiking Club / Event Operations"
         title="Explore the trails ahead."
-        description="Comprehensive event scheduling, candidate route optimization, and live GPS tracking for official Mora Hiking Club expeditions."
+        description="Official event scheduler, upcoming hiking calendar, candidate route optimization, and live GPS tracking for Mora Hiking Club expeditions."
         image="/images/ridgeview.jpg"
       />
-      <EventsViewManager />
+      <EventManagementStudio />
     </>
   );
 }

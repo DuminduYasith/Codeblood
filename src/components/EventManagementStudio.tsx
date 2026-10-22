@@ -1,6 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
+import Image from 'next/image';
+import Link from 'next/link';
 import {
   CalendarDays,
   Clock,
@@ -12,6 +14,7 @@ import {
   PlusCircle,
   Eye,
   Award,
+  ChevronLeft,
   ChevronRight,
   Shield,
   Activity,
@@ -24,6 +27,7 @@ import {
   Check,
   X,
   Footprints,
+  Calendar as CalendarIcon,
 } from 'lucide-react';
 import {
   initialManagedEvents,
@@ -33,13 +37,19 @@ import {
   EventKind,
 } from '@/lib/eventManagementData';
 
-type SubView = 'list' | 'create' | 'route-optimizer' | 'live-tracking';
+type SubView = 'calendar' | 'live-tracking' | 'route-optimizer' | 'create' | 'list';
 
 export default function EventManagementStudio() {
   const [events, setEvents] = useState<ManagedHikingEvent[]>(initialManagedEvents);
   const [selectedEventId, setSelectedEventId] = useState<number>(1);
-  const [subView, setSubView] = useState<SubView>('live-tracking');
+  const [subView, setSubView] = useState<SubView>('calendar');
   const [toast, setToast] = useState<string | null>(null);
+
+  // Calendar state
+  const [calendarMonth, setCalendarMonth] = useState(10); // November (0-indexed: 10 = Nov)
+  const [calendarYear, setCalendarYear] = useState(2026);
+  const [selectedCalendarDate, setSelectedCalendarDate] = useState<string | null>('2026-11-07');
+  const [calendarFilter, setCalendarFilter] = useState('All experiences');
 
   // Form states for Event Creation
   const [title, setTitle] = useState('');
@@ -60,6 +70,58 @@ export default function EventManagementStudio() {
   const showToast = (msg: string) => {
     setToast(msg);
     setTimeout(() => setToast(null), 4000);
+  };
+
+  // Calendar days calculation
+  const firstDay = new Date(calendarYear, calendarMonth, 1).getDay();
+  const totalDays = new Date(calendarYear, calendarMonth + 1, 0).getDate();
+  const cells = Array.from(
+    { length: Math.ceil((firstDay + totalDays) / 7) * 7 },
+    (_, i) => i - firstDay + 1
+  );
+
+  const monthName = new Date(calendarYear, calendarMonth, 1).toLocaleDateString('en-GB', {
+    month: 'long',
+    year: 'numeric',
+  });
+
+  // Events filtered for calendar
+  const filteredEventsForCalendar = useMemo(() => {
+    return events.filter((e) => {
+      if (calendarFilter === 'All experiences') return true;
+      if (calendarFilter === 'Day hikes') return e.kind === 'Day hike';
+      if (calendarFilter === 'Weekend treks') return e.kind === 'Weekend trek';
+      if (calendarFilter === 'Beginner friendly') return e.difficulty === 'Beginner';
+      return true;
+    });
+  }, [events, calendarFilter]);
+
+  // Selected event on the calendar date
+  const calendarSelectedEvent =
+    events.find((e) => e.date === selectedCalendarDate) ||
+    events.find((e) => {
+      const d = new Date(e.date);
+      return d.getMonth() === calendarMonth && d.getFullYear() === calendarYear;
+    }) ||
+    events[0];
+
+  // Month navigation handlers
+  const handlePrevMonth = () => {
+    if (calendarMonth === 0) {
+      setCalendarMonth(11);
+      setCalendarYear((y) => y - 1);
+    } else {
+      setCalendarMonth((m) => m - 1);
+    }
+  };
+
+  const handleNextMonth = () => {
+    if (calendarMonth === 11) {
+      setCalendarMonth(0);
+      setCalendarYear((y) => y + 1);
+    } else {
+      setCalendarMonth((m) => m + 1);
+    }
   };
 
   // Handle Create Event
@@ -168,6 +230,7 @@ export default function EventManagementStudio() {
 
     setEvents((prev) => [newEvent, ...prev]);
     setSelectedEventId(newEvent.eventId);
+    setSelectedCalendarDate(newEvent.date);
     showToast(`✓ New hiking event "${newEvent.title}" created successfully!`);
     setSubView('route-optimizer');
   };
@@ -190,7 +253,7 @@ export default function EventManagementStudio() {
       })
     );
     const chosen = selectedEvent.routes.find((r) => r.routeId === routeId);
-    showToast(`⭐ "${chosen?.name}" set as the official best path for ${selectedEvent.title}!`);
+    showToast(`⭐ "${chosen?.name}" set as official best path for ${selectedEvent.title}!`);
   };
 
   // Simulate advancing the hiker group along the trail
@@ -202,7 +265,6 @@ export default function EventManagementStudio() {
           const nextIdx = (currentIdx + 1) % e.tracking.checkpoints.length;
           const pct = Math.min(100, Math.round(((nextIdx + 1) / e.tracking.checkpoints.length) * 100));
 
-          // Next coordinates from coordinates array or checkpoint
           const nextCoord = e.tracking.routeCoordinates[nextIdx % e.tracking.routeCoordinates.length];
           const newAltitude = 1100 + nextIdx * 110;
 
@@ -265,7 +327,8 @@ export default function EventManagementStudio() {
     showToast('🔄 Live tracking simulation reset to trailhead start.');
   };
 
-  const activeBestRoute = selectedEvent.routes.find((r) => r.routeId === selectedEvent.selectedRouteId) || selectedEvent.routes[0];
+  const activeBestRoute =
+    selectedEvent.routes.find((r) => r.routeId === selectedEvent.selectedRouteId) || selectedEvent.routes[0];
 
   return (
     <div className="event-mgmt-studio">
@@ -283,6 +346,14 @@ export default function EventManagementStudio() {
       {/* Mode Navigation Tabs */}
       <div className="studio-tabs-bar">
         <div className="shell studio-tabs">
+          <button
+            className={`studio-tab-btn ${subView === 'calendar' ? 'active' : ''}`}
+            onClick={() => setSubView('calendar')}
+          >
+            <CalendarIcon size={17} />
+            <span>Events Calendar (Upcoming Hikes)</span>
+          </button>
+
           <button
             className={`studio-tab-btn ${subView === 'live-tracking' ? 'active' : ''}`}
             onClick={() => setSubView('live-tracking')}
@@ -313,18 +384,249 @@ export default function EventManagementStudio() {
             onClick={() => setSubView('list')}
           >
             <CalendarDays size={17} />
-            <span>All Events ({events.length})</span>
+            <span>All Scheduled Events ({events.length})</span>
           </button>
         </div>
       </div>
 
       <div className="shell studio-content">
         {/* ========================================================================= */}
+        {/* VIEW 0: REACT UI EVENTS CALENDAR (UPCOMING HIKES) */}
+        {/* ========================================================================= */}
+        {subView === 'calendar' && (
+          <div className="studio-section">
+            <div className="studio-header-row">
+              <div>
+                <span className="eyebrow">Interactive Event Scheduler</span>
+                <h2>Upcoming Hiking Events Calendar</h2>
+                <p>
+                  Browse official club events by date. Select any highlighted trail date on the calendar to view
+                  details, gathering venues, and launch live Google Map tracking.
+                </p>
+              </div>
+
+              <div style={{ display: 'flex', gap: '10px' }}>
+                <button className="button button-pine" onClick={() => setSubView('create')}>
+                  <PlusCircle size={17} /> Create Event
+                </button>
+              </div>
+            </div>
+
+            {/* Category Filter Chips */}
+            <div className="filter-bar" style={{ marginBottom: '25px' }}>
+              {['All experiences', 'Day hikes', 'Weekend treks', 'Beginner friendly'].map((f) => (
+                <button
+                  key={f}
+                  onClick={() => setCalendarFilter(f)}
+                  className={`chip ${calendarFilter === f ? 'selected' : ''}`}
+                  aria-pressed={calendarFilter === f}
+                >
+                  {f}
+                </button>
+              ))}
+              <span className="muted filter-side">
+                {filteredEventsForCalendar.length} scheduled club adventures
+              </span>
+            </div>
+
+            {/* Calendar Layout */}
+            <div className="calendar-layout">
+              {/* Calendar Monthly Grid Component */}
+              <div className="calendar-panel">
+                <div className="calendar-head">
+                  <button
+                    aria-label="Previous month"
+                    onClick={handlePrevMonth}
+                    className="icon-button"
+                  >
+                    <ChevronLeft size={19} />
+                  </button>
+                  <strong>{monthName}</strong>
+                  <button
+                    aria-label="Next month"
+                    onClick={handleNextMonth}
+                    className="icon-button"
+                  >
+                    <ChevronRight size={19} />
+                  </button>
+                </div>
+
+                <div className="calendar-grid">
+                  {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((d) => (
+                    <div key={d} className="weekday">
+                      {d}
+                    </div>
+                  ))}
+
+                  {cells.map((day, i) => {
+                    const iso = `${calendarYear}-${String(calendarMonth + 1).padStart(2, '0')}-${String(
+                      day
+                    ).padStart(2, '0')}`;
+                    const hasEvent = events.some((e) => e.date === iso);
+                    const isSelected = selectedCalendarDate === iso;
+
+                    return (
+                      <button
+                        key={i}
+                        disabled={day < 1 || day > totalDays || !hasEvent}
+                        className={`calendar-date ${hasEvent ? 'has-event' : ''} ${
+                          isSelected ? 'selected' : ''
+                        }`}
+                        onClick={() => {
+                          setSelectedCalendarDate(iso);
+                          const matched = events.find((e) => e.date === iso);
+                          if (matched) setSelectedEventId(matched.eventId);
+                        }}
+                        aria-label={hasEvent ? `View event on ${iso}` : undefined}
+                      >
+                        {day > 0 && day <= totalDays ? day : ''}
+                        {hasEvent && <span className="event-dot" />}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '12px',
+                    fontSize: '12px',
+                    color: 'var(--muted)',
+                    marginTop: '16px',
+                    paddingTop: '12px',
+                    borderTop: '1px solid var(--line)',
+                  }}
+                >
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                    <span className="event-dot" style={{ position: 'static' }} /> Green dot indicates scheduled hike
+                  </span>
+                </div>
+              </div>
+
+              {/* Selected Event Details & Upcoming Hikes Side Panel */}
+              <div className="calendar-side" style={{ display: 'flex', flexDirection: 'column' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '14px' }}>
+                  <div className="cal-icon">
+                    <CalendarDays size={22} />
+                  </div>
+                  <div>
+                    <span
+                      style={{
+                        fontSize: '11px',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.08em',
+                        color: 'var(--forest)',
+                        fontWeight: 900,
+                      }}
+                    >
+                      Selected Adventure
+                    </span>
+                    <h3 style={{ margin: '2px 0 0', fontSize: '18px' }}>
+                      {calendarSelectedEvent.title}
+                    </h3>
+                  </div>
+                </div>
+
+                {/* Event Summary Card */}
+                <div
+                  style={{
+                    background: 'var(--soft)',
+                    borderRadius: '14px',
+                    padding: '16px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '10px',
+                    fontSize: '13px',
+                    marginBottom: '18px',
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <CalendarDays size={15} className="text-forest" />
+                    <strong>
+                      {calendarSelectedEvent.date} at {calendarSelectedEvent.time}
+                    </strong>
+                  </div>
+
+                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
+                    <MapPin size={15} className="text-forest" style={{ marginTop: '2px' }} />
+                    <div>
+                      <span>
+                        <strong>Gathering Venue:</strong> {calendarSelectedEvent.gatheringVenue}
+                      </span>
+                      <small className="muted" style={{ display: 'block' }}>
+                        Destination: {calendarSelectedEvent.destinationLocation}
+                      </small>
+                    </div>
+                  </div>
+
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <Compass size={15} className="text-forest" />
+                    <span>
+                      {calendarSelectedEvent.distance} • {calendarSelectedEvent.difficulty} ({calendarSelectedEvent.kind})
+                    </span>
+                  </div>
+                </div>
+
+                {/* Direct Action Buttons */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '20px' }}>
+                  <button
+                    className="button button-pine small"
+                    onClick={() => {
+                      setSelectedEventId(calendarSelectedEvent.eventId);
+                      setSubView('live-tracking');
+                    }}
+                  >
+                    <Activity size={15} /> Open Live Google Map Tracking
+                  </button>
+
+                  <button
+                    className="button button-outline small"
+                    onClick={() => {
+                      setSelectedEventId(calendarSelectedEvent.eventId);
+                      setSubView('route-optimizer');
+                    }}
+                  >
+                    <Compass size={15} /> Evaluate Best Path ({calendarSelectedEvent.routes.length} options)
+                  </button>
+                </div>
+
+                {/* Other Events this Month */}
+                <h4 style={{ margin: 'auto 0 10px', fontSize: '13px', color: 'var(--muted)', textTransform: 'uppercase' }}>
+                  Hikes in {monthName}
+                </h4>
+                <div className="calendar-list" style={{ marginTop: '0', maxHeight: '170px', overflowY: 'auto' }}>
+                  {events
+                    .filter((e) => {
+                      const d = new Date(e.date);
+                      return d.getMonth() === calendarMonth && d.getFullYear() === calendarYear;
+                    })
+                    .map((e) => (
+                      <button
+                        key={e.eventId}
+                        onClick={() => {
+                          setSelectedCalendarDate(e.date);
+                          setSelectedEventId(e.eventId);
+                        }}
+                        className={`calendar-list-row ${
+                          selectedCalendarDate === e.date ? 'active' : ''
+                        }`}
+                      >
+                        <span>{new Date(e.date).getDate()} {new Date(e.date).toLocaleDateString('en-GB', { month: 'short' })}</span>
+                        <strong>{e.title}</strong>
+                      </button>
+                    ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ========================================================================= */}
         {/* VIEW 1: LIVE TRAIL TRACKING (GOOGLE MAPS) */}
         {/* ========================================================================= */}
         {subView === 'live-tracking' && (
           <div className="studio-section">
-            {/* Header + Event Selector */}
             <div className="studio-header-row">
               <div>
                 <span className="eyebrow">Real-Time Event Navigation</span>
@@ -389,7 +691,6 @@ export default function EventManagementStudio() {
 
             {/* Google Map + Live Feed Layout */}
             <div className="live-tracking-layout">
-              {/* Map Panel with Google Maps */}
               <div className="map-panel">
                 <div className="map-toolbar">
                   <div className="map-title-info">
@@ -422,7 +723,6 @@ export default function EventManagementStudio() {
                     src={`https://maps.google.com/maps?q=${selectedEvent.tracking.currentLat},${selectedEvent.tracking.currentLng}&z=14&t=k&output=embed`}
                   ></iframe>
 
-                  {/* Live GPS Overlay Marker */}
                   <div className="live-map-overlay-badge">
                     <span className="pulse-dot"></span>
                     <strong>Hiker Group Location</strong>
@@ -432,7 +732,7 @@ export default function EventManagementStudio() {
                   </div>
                 </div>
 
-                {/* Simulation Control Bar for Presentations */}
+                {/* Simulation Control Bar */}
                 <div className="sim-control-bar">
                   <div className="sim-info">
                     <span>
@@ -466,7 +766,6 @@ export default function EventManagementStudio() {
                   </div>
                 </div>
 
-                {/* Checkpoint Timeline */}
                 <div className="checkpoints-container">
                   <h4>
                     <Navigation size={17} /> Waypoint Check-In Timeline
@@ -505,7 +804,6 @@ export default function EventManagementStudio() {
                   </div>
                 </div>
 
-                {/* Emergency Contact & Nearest Hospital Card */}
                 <div className="emergency-contact-box">
                   <h4>
                     <Shield size={16} /> Safety & Medical Support
@@ -562,7 +860,6 @@ export default function EventManagementStudio() {
               </div>
             </div>
 
-            {/* Candidate Routes Comparison Grid */}
             <div className="routes-comparison-grid">
               {selectedEvent.routes.map((route) => {
                 const isSelected = route.routeId === selectedEvent.selectedRouteId;
@@ -590,7 +887,6 @@ export default function EventManagementStudio() {
 
                     <p className="route-desc">{route.description}</p>
 
-                    {/* Metrics Grid */}
                     <div className="route-stats-grid">
                       <div className="route-stat">
                         <span>Distance</span>
@@ -623,7 +919,6 @@ export default function EventManagementStudio() {
                       </div>
                     </div>
 
-                    {/* Identified Hazards */}
                     <div className="route-hazards">
                       <span>Hazards & Conditions:</span>
                       <ul>
@@ -635,7 +930,6 @@ export default function EventManagementStudio() {
                       </ul>
                     </div>
 
-                    {/* Waypoints Along Route */}
                     <div className="route-waypoints-box">
                       <span>Waypoints ({route.waypoints.length}):</span>
                       <ol>
@@ -647,7 +941,6 @@ export default function EventManagementStudio() {
                       </ol>
                     </div>
 
-                    {/* Action Button */}
                     <div className="route-card-footer">
                       {isSelected ? (
                         <div className="selected-active-note">
@@ -886,7 +1179,7 @@ export default function EventManagementStudio() {
                 <button
                   type="button"
                   className="button button-outline"
-                  onClick={() => setSubView('live-tracking')}
+                  onClick={() => setSubView('calendar')}
                 >
                   Cancel
                 </button>
