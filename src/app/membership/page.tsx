@@ -1,4 +1,16 @@
-import Link from 'next/link';
-import { UserPlus,UsersRound,ShieldCheck,Mountain,ArrowRight,CheckCircle2 } from 'lucide-react';
-import { PageHero, SectionTitle } from '@/components/UI';
-export default function MembershipPage(){const items=[{icon:<UsersRound/>,title:'Belong to a community',copy:'Connect with passionate hikers across the University of Moratuwa.'},{icon:<Mountain/>,title:'Explore with confidence',copy:'Discover curated trails and experiences for different skill levels.'},{icon:<ShieldCheck/>,title:'Grow responsibly',copy:'Promote sustainable, respectful outdoor experiences.'}];return <><PageHero eyebrow="Mora Hiking Club / Membership" title="Adventure is better together." description="Become part of a welcoming hiking community, discover new trails and create memories that last." image="/images/team.jpg"/><section className="shell section"><SectionTitle eyebrow="Why join us" title="Find your people. Find your purpose."/><div className="features-grid">{items.map(i=><div key={i.title} className="feature-card"><span className="feature-icon">{i.icon}</span><h3>{i.title}</h3><p>{i.copy}</p></div>)}</div></section><section className="tinted section"><div className="shell membership-split"><div><div className="eyebrow">Getting started</div><h2>Your journey starts here</h2><p>Take the first step to discovering the Mora Hiking Club community.</p><Link href="/register" className="button button-pine"><UserPlus size={18}/> Create your account <ArrowRight size={17}/></Link></div><div className="step-stack">{[['01','Create an account','Enter your basic information using the membership form.'],['02','Wait for confirmation','Your application can be reviewed by the club administration.'],['03','Explore the club','Access the member experience when access is enabled.']].map(([n,t,d])=><div className="step-card" key={n}><b>{n}</b><div><h3>{t}</h3><p>{d}</p></div><CheckCircle2 size={20}/></div>)}</div></div></section></>}
+import { PageHero } from '@/components/UI';
+import MembershipManagement from '@/components/MembershipManagement';
+
+export default function MembershipPage() {
+  return (
+    <>
+      <PageHero
+        eyebrow="Mora Hiking Club / Membership System"
+        title="Adventure is better together."
+        description="Official membership management portal for the University of Moratuwa Mora Hiking Club. Manage your member credentials, annual and lifetime plans, and committee approvals."
+        image="/images/team.jpg"
+      />
+      <MembershipManagement />
+    </>
+  );
+}
