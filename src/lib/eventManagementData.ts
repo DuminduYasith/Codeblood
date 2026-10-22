@@ -65,8 +65,48 @@ export interface HospitalContactInfo {
   hospitalId: number;
   name: string;
   phone: string;
+  emergencyHotline?: string;
   address: string;
   distanceKm: number;
+  traumaCareAvailable?: boolean;
+}
+
+export interface MainHeadContact {
+  name: string;
+  role: string;
+  phone: string;
+  alternatePhone: string;
+  universityId: string;
+  bloodGroup: string;
+  email: string;
+}
+
+export interface OCMemberContact {
+  id: number;
+  name: string;
+  role: string;
+  phone: string;
+  whatsapp?: string;
+  responsibility: string;
+}
+
+export interface FirstAidCommitteeContact {
+  id: number;
+  name: string;
+  qualification: string;
+  phone: string;
+  assignedKitNumber: string;
+  priorityDuty: string;
+}
+
+export interface PreHikeClearance {
+  isClearedBeforeHike: boolean;
+  hospitalNotified: boolean;
+  firstAidKitsInspected: boolean;
+  ocBriefingCompleted: boolean;
+  emergencyRadioChecked: boolean;
+  clearedByAdminName: string;
+  clearedAtTimestamp: string;
 }
 
 export interface ManagedHikingEvent {
@@ -90,6 +130,10 @@ export interface ManagedHikingEvent {
   tracking: LiveTrackingState;
   contacts: EventContactPerson[];
   hospital: HospitalContactInfo;
+  mainHead: MainHeadContact;
+  ocMembers: OCMemberContact[];
+  firstAidCommittee: FirstAidCommitteeContact[];
+  preHikeClearance: PreHikeClearance;
 }
 
 export const initialManagedEvents: ManagedHikingEvent[] = [
@@ -262,12 +306,84 @@ export const initialManagedEvents: ManagedHikingEvent[] = [
         responsibility: 'GPS tracking, check-in log, emergency radio',
       },
     ],
+    mainHead: {
+      name: 'Nethmi Perera',
+      role: 'Expedition Head & Lead Mountain Navigator',
+      phone: '077 234 5678',
+      alternatePhone: '071 889 4432',
+      universityId: 'EN214902 - Dept. of Mechanical Eng.',
+      bloodGroup: 'O+ (Positive)',
+      email: 'nethmi.perera@uom.lk',
+    },
+    ocMembers: [
+      {
+        id: 1,
+        name: 'Dumindu Yasith',
+        role: 'Safety Marshall & Live GPS Coordinator',
+        phone: '071 458 9201',
+        whatsapp: '+94714589201',
+        responsibility: 'Live GPS telemetry, emergency VHF channel monitoring, checkpoint logs',
+      },
+      {
+        id: 2,
+        name: 'Kavindu Bandara',
+        role: 'Logistics & Transport Marshall',
+        phone: '075 321 8890',
+        whatsapp: '+94753218890',
+        responsibility: 'Bus transit coordinator, emergency extraction vehicle driver liaison',
+      },
+      {
+        id: 3,
+        name: 'Sanduni Weerasinghe',
+        role: 'Roll-Call & Hiker Welfare In-Charge',
+        phone: '076 991 2234',
+        whatsapp: '+94769912234',
+        responsibility: 'Hiker registration roster, emergency medical form verification',
+      },
+      {
+        id: 4,
+        name: 'Tharusha Senaratne',
+        role: 'Rear Guard (Tail-Sweep Marshall)',
+        phone: '078 114 7720',
+        whatsapp: '+94781147720',
+        responsibility: 'Tail patrol, ensuring buddy system adherence, rear group pacing',
+      },
+    ],
+    firstAidCommittee: [
+      {
+        id: 1,
+        name: 'Dr. Thilina Alwis (Medical Liaison)',
+        qualification: 'St. John Ambulance Certified First Responder (Level 3)',
+        phone: '077 912 3456',
+        assignedKitNumber: 'MHC-TRAUMA-KIT-01',
+        priorityDuty: 'Primary triage, anaphylaxis (EpiPen), fracture stabilization & oxygen pack',
+      },
+      {
+        id: 2,
+        name: 'Minoli Jayasuriya',
+        qualification: 'Red Cross Certified Wilderness First Aider',
+        phone: '071 678 1234',
+        assignedKitNumber: 'MHC-FIRST-AID-KIT-02',
+        priorityDuty: 'Dehydration, heat exhaustion, wound dressings & anti-leech repellent',
+      },
+    ],
     hospital: {
       hospitalId: 1,
       name: 'Matale District Base Hospital',
       phone: '066 222 2261',
+      emergencyHotline: '066 222 2265 (Casualty Unit) / 1990 (Suwa Seriya)',
       address: 'Trincomalee Street, Matale',
       distanceKm: 28.5,
+      traumaCareAvailable: true,
+    },
+    preHikeClearance: {
+      isClearedBeforeHike: true,
+      hospitalNotified: true,
+      firstAidKitsInspected: true,
+      ocBriefingCompleted: true,
+      emergencyRadioChecked: true,
+      clearedByAdminName: 'MHC Safety Committee (Dumindu Yasith)',
+      clearedAtTimestamp: '2026-11-06 06:00 PM (Verified Before Hike)',
     },
   },
   {
@@ -388,12 +504,68 @@ export const initialManagedEvents: ManagedHikingEvent[] = [
         responsibility: 'Trail Leader & Navigation',
       },
     ],
+    mainHead: {
+      name: 'Dulanjana Silva',
+      role: 'Expedition Head & Lead Mountain Guide',
+      phone: '070 345 6789',
+      alternatePhone: '072 445 1190',
+      universityId: 'EN203118 - Dept. of Civil Eng.',
+      bloodGroup: 'B+ (Positive)',
+      email: 'dulanjana.silva@uom.lk',
+    },
+    ocMembers: [
+      {
+        id: 1,
+        name: 'Rashmika Fernando',
+        role: 'Railway Safety Marshall & Trail Guide',
+        phone: '071 889 0012',
+        whatsapp: '+94718890012',
+        responsibility: 'Railway track corridor safety, headlight equipment checks',
+      },
+      {
+        id: 2,
+        name: 'Akindu Perera',
+        role: 'Logistics & Radio Communication Lead',
+        phone: '077 554 9912',
+        whatsapp: '+94775549912',
+        responsibility: 'Emergency radio relay with Ella Police Post, backup lighting gear',
+      },
+      {
+        id: 3,
+        name: 'Sachini Wickramasinghe',
+        role: 'Hiker Welfare & Tail-Sweep Marshall',
+        phone: '076 332 1198',
+        whatsapp: '+94763321198',
+        responsibility: 'Tail patrol, hiker pacing, ensuring buddy system adherence',
+      },
+    ],
+    firstAidCommittee: [
+      {
+        id: 1,
+        name: 'Charith Disanayake',
+        qualification: 'St. John Ambulance Certified First Responder (Level 2)',
+        phone: '077 881 2233',
+        assignedKitNumber: 'MHC-TRAUMA-KIT-03',
+        priorityDuty: 'Night hike slip/fall trauma, joint immobilization, emergency evacuation coordination',
+      },
+    ],
     hospital: {
       hospitalId: 2,
       name: 'Badulla Provincial General Hospital',
       phone: '055 222 2261',
+      emergencyHotline: '055 222 2264 (Emergency Unit) / 1990 (Suwa Seriya)',
       address: 'Hospital Road, Badulla',
       distanceKm: 21.0,
+      traumaCareAvailable: true,
+    },
+    preHikeClearance: {
+      isClearedBeforeHike: true,
+      hospitalNotified: true,
+      firstAidKitsInspected: true,
+      ocBriefingCompleted: true,
+      emergencyRadioChecked: true,
+      clearedByAdminName: 'MHC Safety Committee (Dulanjana Silva)',
+      clearedAtTimestamp: '2026-11-20 07:30 PM (Verified Before Hike)',
     },
   },
 ];

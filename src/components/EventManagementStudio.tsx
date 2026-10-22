@@ -28,6 +28,17 @@ import {
   X,
   Footprints,
   Calendar as CalendarIcon,
+  ShieldAlert,
+  PhoneCall,
+  HeartPulse,
+  UserCheck,
+  Users,
+  Building2,
+  Printer,
+  Plus,
+  Trash2,
+  FileText,
+  MessageSquare,
 } from 'lucide-react';
 import {
   initialManagedEvents,
@@ -35,9 +46,11 @@ import {
   RouteOption,
   Difficulty,
   EventKind,
+  OCMemberContact,
+  FirstAidCommitteeContact,
 } from '@/lib/eventManagementData';
 
-type SubView = 'calendar' | 'live-tracking' | 'route-optimizer' | 'create' | 'list';
+type SubView = 'calendar' | 'live-tracking' | 'route-optimizer' | 'emergency-view' | 'create' | 'list';
 
 export default function EventManagementStudio() {
   const [events, setEvents] = useState<ManagedHikingEvent[]>(initialManagedEvents);
@@ -64,6 +77,39 @@ export default function EventManagementStudio() {
   const [capacity, setCapacity] = useState(35);
   const [routeA_Name, setRouteA_Name] = useState('Ridge Trail & Seven Peaks Path');
   const [routeB_Name, setRouteB_Name] = useState('Forest Valley & Water Reservoir Route');
+
+  // Pre-Hike Emergency Setup states for Event Creation
+  const [mainHeadName, setMainHeadName] = useState('Dumindu Yasith');
+  const [mainHeadPhone, setMainHeadPhone] = useState('071 458 9201');
+  const [mainHeadRole, setMainHeadRole] = useState('Expedition Head & Chief Navigator');
+  const [mainHeadId, setMainHeadId] = useState('EN220194 - CSE');
+  const [mainHeadBlood, setMainHeadBlood] = useState('A+');
+  const [hospitalName, setHospitalName] = useState('Peradeniya Teaching Hospital');
+  const [hospitalPhone, setHospitalPhone] = useState('081 238 8001');
+  const [hospitalAddress, setHospitalAddress] = useState('Galaha Road, Peradeniya, Kandy');
+  const [hospitalDistance, setHospitalDistance] = useState('8.2');
+  const [firstAidLeadName, setFirstAidLeadName] = useState('Dr. Thilina Alwis (UoM Medical Center Liaison)');
+  const [firstAidLeadPhone, setFirstAidLeadPhone] = useState('077 912 3456');
+  const [firstAidKitId, setFirstAidKitId] = useState('MHC-TRAUMA-KIT-04');
+  const [firstAidQual, setFirstAidQual] = useState('St. John Ambulance Certified First Responder (Level 3)');
+  const [ocLeadName, setOcLeadName] = useState('Kavindu Bandara');
+  const [ocLeadPhone, setOcLeadPhone] = useState('075 321 8890');
+  const [ocLeadRole, setOcLeadRole] = useState('Safety & Transport Marshall');
+
+  // Dynamic forms inside Emergency View
+  const [isAddingOc, setIsAddingOc] = useState(false);
+  const [newOcName, setNewOcName] = useState('');
+  const [newOcRole, setNewOcRole] = useState('');
+  const [newOcPhone, setNewOcPhone] = useState('');
+  const [newOcWhatsapp, setNewOcWhatsapp] = useState('');
+  const [newOcResp, setNewOcResp] = useState('');
+
+  const [isAddingFa, setIsAddingFa] = useState(false);
+  const [newFaName, setNewFaName] = useState('');
+  const [newFaQual, setNewFaQual] = useState('');
+  const [newFaPhone, setNewFaPhone] = useState('');
+  const [newFaKit, setNewFaKit] = useState('');
+  const [newFaDuty, setNewFaDuty] = useState('');
 
   const selectedEvent = events.find((e) => e.eventId === selectedEventId) || events[0];
 
@@ -217,14 +263,62 @@ export default function EventManagementStudio() {
         ],
       },
       contacts: [
-        { contactId: 1, name: 'Dumindu Yasith', role: 'Expedition Lead', phone: '071 458 9201', responsibility: 'Group navigation and check-ins' },
+        { contactId: 1, name: mainHeadName || 'Dumindu Yasith', role: 'Expedition Lead', phone: mainHeadPhone || '071 458 9201', responsibility: 'Group navigation and check-ins' },
+      ],
+      mainHead: {
+        name: mainHeadName || 'Dumindu Yasith',
+        role: mainHeadRole || 'Expedition Head & Chief Navigator',
+        phone: mainHeadPhone || '071 458 9201',
+        alternatePhone: '077 889 4432',
+        universityId: mainHeadId || 'EN220194 - CSE',
+        bloodGroup: mainHeadBlood || 'A+ (Positive)',
+        email: 'dumindu.y@uom.lk',
+      },
+      ocMembers: [
+        {
+          id: 1,
+          name: ocLeadName || 'Kavindu Bandara',
+          role: ocLeadRole || 'Safety & Transport Marshall',
+          phone: ocLeadPhone || '075 321 8890',
+          whatsapp: '+94753218890',
+          responsibility: 'Trailhead roll call, pace control, emergency radio sync',
+        },
+        {
+          id: 2,
+          name: 'Sanduni Weerasinghe',
+          role: 'Logistics & Attendance In-Charge',
+          phone: '076 991 2234',
+          whatsapp: '+94769912234',
+          responsibility: 'Bus transit coordinator, emergency extraction vehicle driver liaison',
+        },
+      ],
+      firstAidCommittee: [
+        {
+          id: 1,
+          name: firstAidLeadName || 'Dr. Thilina Alwis (UoM Medical Center Liaison)',
+          qualification: firstAidQual || 'St. John Ambulance Certified First Responder (Level 3)',
+          phone: firstAidLeadPhone || '077 912 3456',
+          assignedKitNumber: firstAidKitId || 'MHC-TRAUMA-KIT-04',
+          priorityDuty: 'Primary triage, anaphylaxis (EpiPen), fracture splinting',
+        },
       ],
       hospital: {
         hospitalId: 10,
-        name: 'Peradeniya Teaching Hospital',
-        phone: '081 238 8001',
-        address: 'Galaha Road, Peradeniya, Kandy',
-        distanceKm: 8.2,
+        name: hospitalName || 'Peradeniya Teaching Hospital',
+        phone: hospitalPhone || '081 238 8001',
+        emergencyHotline: `${hospitalPhone || '081 238 8001'} (Emergency Room) / 1990 (Suwa Seriya)`,
+        address: hospitalAddress || 'Galaha Road, Peradeniya, Kandy',
+        distanceKm: parseFloat(hospitalDistance) || 8.2,
+        traumaCareAvailable: true,
+      },
+      preHikeClearance: {
+        isClearedBeforeHike: true,
+        hospitalNotified: true,
+        firstAidKitsInspected: true,
+        ocBriefingCompleted: true,
+        emergencyRadioChecked: true,
+        clearedByAdminName: 'MHC Safety Committee (Configured Before Hike)',
+        clearedAtTimestamp: 'Pre-Hike Safety Clearance Approved',
       },
     };
 
@@ -327,6 +421,158 @@ export default function EventManagementStudio() {
     showToast('🔄 Live tracking simulation reset to trailhead start.');
   };
 
+  // Pre-Hike Emergency Handlers (Configured Before Hiking Starts)
+  const handleAddOcMember = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newOcName.trim() || !newOcPhone.trim()) {
+      showToast('⚠️ Please enter member name and phone number.');
+      return;
+    }
+    const newMember: OCMemberContact = {
+      id: Date.now(),
+      name: newOcName.trim(),
+      role: newOcRole.trim() || 'Organizing Committee Marshall',
+      phone: newOcPhone.trim(),
+      whatsapp: newOcWhatsapp.trim() ? `+94${newOcWhatsapp.trim().replace(/^0/, '')}` : undefined,
+      responsibility: newOcResp.trim() || 'Trailhead hiker support & patrol communication',
+    };
+    setEvents((prev) =>
+      prev.map((ev) =>
+        ev.eventId === selectedEvent.eventId
+          ? { ...ev, ocMembers: [...ev.ocMembers, newMember] }
+          : ev
+      )
+    );
+    setNewOcName('');
+    setNewOcRole('');
+    setNewOcPhone('');
+    setNewOcWhatsapp('');
+    setNewOcResp('');
+    setIsAddingOc(false);
+    showToast(`✓ OC Member ${newMember.name} added to pre-hike directory!`);
+  };
+
+  const handleRemoveOcMember = (id: number) => {
+    setEvents((prev) =>
+      prev.map((ev) =>
+        ev.eventId === selectedEvent.eventId
+          ? { ...ev, ocMembers: ev.ocMembers.filter((m) => m.id !== id) }
+          : ev
+      )
+    );
+    showToast('✓ OC member removed from emergency directory.');
+  };
+
+  const handleAddFaMember = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newFaName.trim() || !newFaPhone.trim()) {
+      showToast('⚠️ Please enter responder name and mobile number.');
+      return;
+    }
+    const newFa: FirstAidCommitteeContact = {
+      id: Date.now(),
+      name: newFaName.trim(),
+      qualification: newFaQual.trim() || 'St. John Ambulance Certified First Responder',
+      phone: newFaPhone.trim(),
+      assignedKitNumber: newFaKit.trim() || `MHC-TRAUMA-KIT-0${selectedEvent.firstAidCommittee.length + 1}`,
+      priorityDuty: newFaDuty.trim() || 'Primary Triage, Heatstroke & Sprain Immobilization',
+    };
+    setEvents((prev) =>
+      prev.map((ev) =>
+        ev.eventId === selectedEvent.eventId
+          ? { ...ev, firstAidCommittee: [...ev.firstAidCommittee, newFa] }
+          : ev
+      )
+    );
+    setNewFaName('');
+    setNewFaQual('');
+    setNewFaPhone('');
+    setNewFaKit('');
+    setNewFaDuty('');
+    setIsAddingFa(false);
+    showToast(`✓ First Aid responder ${newFa.name} assigned to pre-hike medical roster!`);
+  };
+
+  const handleRemoveFaMember = (id: number) => {
+    setEvents((prev) =>
+      prev.map((ev) =>
+        ev.eventId === selectedEvent.eventId
+          ? { ...ev, firstAidCommittee: ev.firstAidCommittee.filter((fa) => fa.id !== id) }
+          : ev
+      )
+    );
+    showToast('✓ First Aid responder removed from medical squad.');
+  };
+
+  const handleTogglePreHikeCheck = (
+    key: 'hospitalNotified' | 'firstAidKitsInspected' | 'ocBriefingCompleted' | 'emergencyRadioChecked'
+  ) => {
+    setEvents((prev) =>
+      prev.map((ev) => {
+        if (ev.eventId === selectedEvent.eventId) {
+          const updated = {
+            ...ev.preHikeClearance,
+            [key]: !ev.preHikeClearance[key],
+          };
+          const allChecked =
+            updated.hospitalNotified &&
+            updated.firstAidKitsInspected &&
+            updated.ocBriefingCompleted &&
+            updated.emergencyRadioChecked;
+          return {
+            ...ev,
+            preHikeClearance: {
+              ...updated,
+              isClearedBeforeHike: allChecked,
+              clearedAtTimestamp: allChecked
+                ? new Date().toLocaleString([], { dateStyle: 'short', timeStyle: 'short' }) + ' (Verified Before Hike)'
+                : 'Pending Final Verification',
+            },
+          };
+        }
+        return ev;
+      })
+    );
+    showToast('✓ Pre-hike safety clearance checklist updated.');
+  };
+
+  const handleSignOffPreHike = () => {
+    setEvents((prev) =>
+      prev.map((ev) => {
+        if (ev.eventId === selectedEvent.eventId) {
+          const current = ev.preHikeClearance.isClearedBeforeHike;
+          return {
+            ...ev,
+            preHikeClearance: {
+              ...ev.preHikeClearance,
+              isClearedBeforeHike: !current,
+              hospitalNotified: true,
+              firstAidKitsInspected: true,
+              ocBriefingCompleted: true,
+              emergencyRadioChecked: true,
+              clearedByAdminName: 'MHC Safety & Operations Executive',
+              clearedAtTimestamp: !current
+                ? new Date().toLocaleString([], { dateStyle: 'short', timeStyle: 'short' }) + ' (Verified Before Hike)'
+                : 'Clearance Revoked for Pre-Hike Re-audit',
+            },
+          };
+        }
+        return ev;
+      })
+    );
+    showToast(
+      !selectedEvent.preHikeClearance.isClearedBeforeHike
+        ? '✓ Pre-Hike Safety Clearance Approved & Certified!'
+        : '⚠️ Pre-Hike Safety Clearance set to Pending Re-audit.'
+    );
+  };
+
+  const handlePrintDossier = () => {
+    if (typeof window !== 'undefined') {
+      window.print();
+    }
+  };
+
   const activeBestRoute =
     selectedEvent.routes.find((r) => r.routeId === selectedEvent.selectedRouteId) || selectedEvent.routes[0];
 
@@ -369,6 +615,15 @@ export default function EventManagementStudio() {
           >
             <Compass size={17} />
             <span>Best Path Decision Studio</span>
+          </button>
+
+          <button
+            className={`studio-tab-btn ${subView === 'emergency-view' ? 'active' : ''}`}
+            onClick={() => setSubView('emergency-view')}
+          >
+            <ShieldAlert size={17} />
+            <span>Emergency Readiness & Contacts</span>
+            <span className="emergency-alert-badge">PRE-HIKE</span>
           </button>
 
           <button
@@ -588,6 +843,16 @@ export default function EventManagementStudio() {
                     }}
                   >
                     <Compass size={15} /> Evaluate Best Path ({calendarSelectedEvent.routes.length} options)
+                  </button>
+
+                  <button
+                    className="button button-outline small"
+                    onClick={() => {
+                      setSelectedEventId(calendarSelectedEvent.eventId);
+                      setSubView('emergency-view');
+                    }}
+                  >
+                    <ShieldAlert size={15} /> Pre-Hike Emergency Dossier
                   </button>
                 </div>
 
@@ -963,6 +1228,582 @@ export default function EventManagementStudio() {
         )}
 
         {/* ========================================================================= */}
+        {/* VIEW 2.5: EMERGENCY READINESS, HOSPITAL & CONTACTS (BEFORE HIKE STARTS) */}
+        {/* ========================================================================= */}
+        {subView === 'emergency-view' && (
+          <div className="studio-section">
+            {/* Header + Event Selector */}
+            <div className="studio-header-row">
+              <div>
+                <span className="eyebrow">Pre-Expedition Safety Operations</span>
+                <h2>Emergency Readiness & Contacts Directory</h2>
+                <p>
+                  Comprehensive emergency profile configured prior to departure: Nearest hospital & ambulance hotlines,
+                  expedition main head, organizing committee (OC) contacts, and first aid committee responders.
+                </p>
+              </div>
+
+              <div className="event-picker-box">
+                <label>Select Hike:</label>
+                <select
+                  value={selectedEventId}
+                  onChange={(e) => setSelectedEventId(Number(e.target.value))}
+                >
+                  {events.map((ev) => (
+                    <option key={ev.eventId} value={ev.eventId}>
+                      {ev.title} ({ev.status})
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            {/* Emergency Speed Dial Hotline Bar */}
+            <div className="emergency-quick-bar">
+              <span style={{ fontSize: '11px', fontWeight: 900, textTransform: 'uppercase', color: 'var(--muted)', alignSelf: 'center' }}>
+                Emergency Speed Dial:
+              </span>
+              <a href="tel:1990" className="quick-dial-btn" style={{ background: '#ff4747', color: '#fff', borderColor: '#ff4747' }}>
+                <PhoneCall size={14} /> 1990 Ambulance (Suwa Seriya)
+              </a>
+              <a href={`tel:${selectedEvent.hospital.phone.replace(/[^0-9+]/g, '')}`} className="quick-dial-btn">
+                <Hospital size={14} /> {selectedEvent.hospital.name.split(' ')[0]} Hospital Desk: {selectedEvent.hospital.phone.split('/')[0]}
+              </a>
+              <a href={`tel:${selectedEvent.mainHead.phone.replace(/[^0-9+]/g, '')}`} className="quick-dial-btn">
+                <UserCheck size={14} /> Main Head ({selectedEvent.mainHead.name}): {selectedEvent.mainHead.phone}
+              </a>
+              <a href="tel:119" className="quick-dial-btn">
+                <Shield size={14} /> 119 Police Hotline
+              </a>
+            </div>
+
+            {/* Pre-Hike Clearance Status Banner */}
+            <div className={`pre-hike-banner ${selectedEvent.preHikeClearance.isClearedBeforeHike ? '' : 'pending'}`}>
+              <div className="pre-hike-info">
+                <h4>
+                  {selectedEvent.preHikeClearance.isClearedBeforeHike ? (
+                    <>
+                      <CheckCircle2 size={19} color="#16a34a" />
+                      <span>Pre-Hike Safety Clearance: Approved & Cleared</span>
+                    </>
+                  ) : (
+                    <>
+                      <AlertTriangle size={19} color="#f59e0b" />
+                      <span>Pre-Hike Safety Clearance: Pending Protocol Verification</span>
+                    </>
+                  )}
+                </h4>
+                <p>
+                  Status: <strong>{selectedEvent.preHikeClearance.clearedAtTimestamp}</strong> • Audited by {selectedEvent.preHikeClearance.clearedByAdminName}
+                </p>
+              </div>
+
+              <div className="pre-hike-actions">
+                <button
+                  type="button"
+                  className="button button-pine small"
+                  onClick={handleSignOffPreHike}
+                >
+                  <Check size={15} />
+                  {selectedEvent.preHikeClearance.isClearedBeforeHike ? 'Re-Audit Protocol' : 'Certify Pre-Hike Clearance'}
+                </button>
+                <button
+                  type="button"
+                  className="button button-outline small"
+                  onClick={handlePrintDossier}
+                >
+                  <Printer size={15} /> Print Emergency Card
+                </button>
+              </div>
+            </div>
+
+            {/* Pre-Hike Safety Protocol Checklist (Configured & Checked Before Departure) */}
+            <div className="checklist-card">
+              <div className="checklist-card-header">
+                <h3>
+                  <FileText size={17} /> Mandatory Pre-Hike Safety Checklist (Completed Before Trail Departure)
+                </h3>
+                <span className="emergency-badge-tag">Pre-Expedition Requirement</span>
+              </div>
+
+              <div className="checklist-grid">
+                <button
+                  type="button"
+                  className={`checklist-item-btn ${selectedEvent.preHikeClearance.hospitalNotified ? 'checked' : ''}`}
+                  onClick={() => handleTogglePreHikeCheck('hospitalNotified')}
+                >
+                  <div className="check-box">
+                    {selectedEvent.preHikeClearance.hospitalNotified && <Check size={14} />}
+                  </div>
+                  <div className="checklist-text">
+                    <strong>Nearest Hospital Notified</strong>
+                    <span>{selectedEvent.hospital.name} notified with hike schedule & group count</span>
+                  </div>
+                </button>
+
+                <button
+                  type="button"
+                  className={`checklist-item-btn ${selectedEvent.preHikeClearance.firstAidKitsInspected ? 'checked' : ''}`}
+                  onClick={() => handleTogglePreHikeCheck('firstAidKitsInspected')}
+                >
+                  <div className="check-box">
+                    {selectedEvent.preHikeClearance.firstAidKitsInspected && <Check size={14} />}
+                  </div>
+                  <div className="checklist-text">
+                    <strong>First Aid Kits Inspected & Sealed</strong>
+                    <span>Trauma packs, splints, tourniquets, and EpiPens checked</span>
+                  </div>
+                </button>
+
+                <button
+                  type="button"
+                  className={`checklist-item-btn ${selectedEvent.preHikeClearance.ocBriefingCompleted ? 'checked' : ''}`}
+                  onClick={() => handleTogglePreHikeCheck('ocBriefingCompleted')}
+                >
+                  <div className="check-box">
+                    {selectedEvent.preHikeClearance.ocBriefingCompleted && <Check size={14} />}
+                  </div>
+                  <div className="checklist-text">
+                    <strong>OC Roles & Trail Marshalls Briefed</strong>
+                    <span>Pace control, tail-sweep assignments, and checkpoint schedule locked</span>
+                  </div>
+                </button>
+
+                <button
+                  type="button"
+                  className={`checklist-item-btn ${selectedEvent.preHikeClearance.emergencyRadioChecked ? 'checked' : ''}`}
+                  onClick={() => handleTogglePreHikeCheck('emergencyRadioChecked')}
+                >
+                  <div className="check-box">
+                    {selectedEvent.preHikeClearance.emergencyRadioChecked && <Check size={14} />}
+                  </div>
+                  <div className="checklist-text">
+                    <strong>VHF Radio & Mobile Batteries Charged</strong>
+                    <span>Emergency frequencies synced with trailhead base camp</span>
+                  </div>
+                </button>
+              </div>
+            </div>
+
+            {/* Top Command 2 Columns: Main Head + Nearest Hospital */}
+            <div className="emergency-two-col">
+              {/* Card 1: Main Head of the Event */}
+              <div className="emergency-card">
+                <div className="emergency-card-header">
+                  <div className="emergency-card-title">
+                    <UserCheck size={26} />
+                    <div>
+                      <h3>Main Head of the Event</h3>
+                      <p>Chief expedition commander & primary decision maker</p>
+                    </div>
+                  </div>
+                  <span className="emergency-badge-tag">Expedition Lead</span>
+                </div>
+
+                <div className="emergency-details-table">
+                  <div className="emergency-row">
+                    <span className="row-label">Full Name</span>
+                    <span className="row-value">{selectedEvent.mainHead.name}</span>
+                  </div>
+                  <div className="emergency-row">
+                    <span className="row-label">Role / Designation</span>
+                    <span className="row-value">{selectedEvent.mainHead.role}</span>
+                  </div>
+                  <div className="emergency-row">
+                    <span className="row-label">University Index / Faculty</span>
+                    <span className="row-value">{selectedEvent.mainHead.universityId}</span>
+                  </div>
+                  <div className="emergency-row">
+                    <span className="row-label">Primary Mobile</span>
+                    <span className="row-value" style={{ color: 'var(--forest)' }}>
+                      <strong>{selectedEvent.mainHead.phone}</strong>
+                    </span>
+                  </div>
+                  <div className="emergency-row">
+                    <span className="row-label">Alternate Emergency Phone</span>
+                    <span className="row-value">{selectedEvent.mainHead.alternatePhone}</span>
+                  </div>
+                  <div className="emergency-row">
+                    <span className="row-label">Blood Group</span>
+                    <span className="row-value">{selectedEvent.mainHead.bloodGroup}</span>
+                  </div>
+                  <div className="emergency-row">
+                    <span className="row-label">Emergency Email</span>
+                    <span className="row-value">{selectedEvent.mainHead.email}</span>
+                  </div>
+                </div>
+
+                <div style={{ display: 'flex', gap: '10px', marginTop: 'auto', flexWrap: 'wrap' }}>
+                  <a
+                    href={`tel:${selectedEvent.mainHead.phone.replace(/[^0-9+]/g, '')}`}
+                    className="contact-call-btn"
+                  >
+                    <PhoneCall size={14} /> Call Main Head
+                  </a>
+                  <a
+                    href={`https://wa.me/94${selectedEvent.mainHead.phone.replace(/[^0-9]/g, '').replace(/^0/, '')}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="contact-wa-btn"
+                  >
+                    <MessageSquare size={14} /> WhatsApp
+                  </a>
+                </div>
+              </div>
+
+              {/* Card 2: Nearest Hospital & Ambulance Contacts */}
+              <div className="emergency-card">
+                <div className="emergency-card-header">
+                  <div className="emergency-card-title">
+                    <Hospital size={26} />
+                    <div>
+                      <h3>Nearest Hospital & Ambulance</h3>
+                      <p>Designated primary medical evacuation center</p>
+                    </div>
+                  </div>
+                  <span className="emergency-badge-tag" style={{ background: '#fee2e2', color: '#b91c1c' }}>
+                    24/7 Casualty
+                  </span>
+                </div>
+
+                <div className="emergency-details-table">
+                  <div className="emergency-row">
+                    <span className="row-label">Hospital Name</span>
+                    <span className="row-value">{selectedEvent.hospital.name}</span>
+                  </div>
+                  <div className="emergency-row">
+                    <span className="row-label">Casualty / ER Direct Line</span>
+                    <span className="row-value" style={{ color: '#b91c1c' }}>
+                      <strong>{selectedEvent.hospital.phone}</strong>
+                    </span>
+                  </div>
+                  <div className="emergency-row">
+                    <span className="row-label">Ambulance Hotlines</span>
+                    <span className="row-value">
+                      {selectedEvent.hospital.emergencyHotline || '1990 (Suwa Seriya EMS)'}
+                    </span>
+                  </div>
+                  <div className="emergency-row">
+                    <span className="row-label">Distance from Trailhead</span>
+                    <span className="row-value">
+                      {selectedEvent.hospital.distanceKm} km (Approx. {Math.round(selectedEvent.hospital.distanceKm * 1.5)} mins transit)
+                    </span>
+                  </div>
+                  <div className="emergency-row">
+                    <span className="row-label">Address</span>
+                    <span className="row-value">{selectedEvent.hospital.address}</span>
+                  </div>
+                  <div className="emergency-row">
+                    <span className="row-label">Facilities Standby</span>
+                    <span className="row-value">Trauma Unit, Snakebite Antivenom, Blood Bank</span>
+                  </div>
+                </div>
+
+                <div style={{ display: 'flex', gap: '10px', marginTop: 'auto', flexWrap: 'wrap' }}>
+                  <a
+                    href={`tel:${selectedEvent.hospital.phone.replace(/[^0-9+]/g, '')}`}
+                    className="contact-call-btn"
+                    style={{ background: '#b91c1c' }}
+                  >
+                    <PhoneCall size={14} /> Call Hospital ER
+                  </a>
+                  <a
+                    href="tel:1990"
+                    className="contact-call-btn"
+                    style={{ background: '#ea580c' }}
+                  >
+                    <HeartPulse size={14} /> Call 1990 Ambulance
+                  </a>
+                  <a
+                    href={`https://maps.google.com/?q=${encodeURIComponent(selectedEvent.hospital.name + ' ' + selectedEvent.hospital.address)}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="contact-wa-btn"
+                    style={{ background: '#3b82f6' }}
+                  >
+                    <ExternalLink size={14} /> Hospital Directions
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            {/* Section 3: First Aid Committee Responders */}
+            <div className="emergency-section-title">
+              <div>
+                <h3>
+                  <HeartPulse size={20} color="#dc2626" /> First Aid & Medical Committee (Pre-Assigned Squad)
+                </h3>
+                <p style={{ margin: '4px 0 0', fontSize: '13px', color: 'var(--muted)' }}>
+                  Certified emergency responders traveling with the hiking cohort equipped with certified trauma kits.
+                </p>
+              </div>
+
+              <button
+                type="button"
+                className="button button-outline small"
+                onClick={() => setIsAddingFa(!isAddingFa)}
+              >
+                <Plus size={15} /> {isAddingFa ? 'Close Form' : 'Add First Aid Responder'}
+              </button>
+            </div>
+
+            {/* Add First Aid Responder Form (Before Hike Starts) */}
+            {isAddingFa && (
+              <form className="prehike-add-box" onSubmit={handleAddFaMember}>
+                <h4 style={{ margin: '0 0 14px', fontSize: '15px' }}>
+                  Assign Certified First Aid Responder (Pre-Hike Setup)
+                </h4>
+                <div className="form-row three-col">
+                  <label className="field">
+                    <span>Full Name</span>
+                    <input
+                      required
+                      type="text"
+                      placeholder="e.g. Minoli Jayasuriya"
+                      value={newFaName}
+                      onChange={(e) => setNewFaName(e.target.value)}
+                    />
+                  </label>
+                  <label className="field">
+                    <span>Qualification / Certifications</span>
+                    <input
+                      required
+                      type="text"
+                      placeholder="e.g. St. John Ambulance Level 2"
+                      value={newFaQual}
+                      onChange={(e) => setNewFaQual(e.target.value)}
+                    />
+                  </label>
+                  <label className="field">
+                    <span>Direct Mobile Number</span>
+                    <input
+                      required
+                      type="tel"
+                      placeholder="e.g. 077 123 4567"
+                      value={newFaPhone}
+                      onChange={(e) => setNewFaPhone(e.target.value)}
+                    />
+                  </label>
+                </div>
+                <div className="form-row">
+                  <label className="field">
+                    <span>Assigned Medical Kit ID</span>
+                    <input
+                      type="text"
+                      placeholder="e.g. MHC-TRAUMA-KIT-02"
+                      value={newFaKit}
+                      onChange={(e) => setNewFaKit(e.target.value)}
+                    />
+                  </label>
+                  <label className="field">
+                    <span>Designated Duty on Trail</span>
+                    <input
+                      type="text"
+                      placeholder="e.g. Dehydration, sprains & wound management"
+                      value={newFaDuty}
+                      onChange={(e) => setNewFaDuty(e.target.value)}
+                    />
+                  </label>
+                </div>
+                <div style={{ display: 'flex', gap: '10px', marginTop: '12px' }}>
+                  <button type="submit" className="button button-pine small">
+                    <Plus size={14} /> Add First Aider to Pre-Hike Roster
+                  </button>
+                  <button
+                    type="button"
+                    className="button button-outline small"
+                    onClick={() => setIsAddingFa(false)}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            )}
+
+            <div className="emergency-contact-grid">
+              {selectedEvent.firstAidCommittee.map((fa) => (
+                <div key={fa.id} className="contact-person-card">
+                  <div className="contact-person-top">
+                    <div className="contact-person-meta">
+                      <h4>{fa.name}</h4>
+                      <span>{fa.qualification}</span>
+                    </div>
+                    <span className="emergency-badge-tag" style={{ background: '#fee2e2', color: '#b91c1c' }}>
+                      {fa.assignedKitNumber}
+                    </span>
+                  </div>
+
+                  <div className="contact-person-duty">
+                    <strong>Pre-Hike Duty:</strong> {fa.priorityDuty}
+                  </div>
+
+                  <div className="contact-person-actions">
+                    <a
+                      href={`tel:${fa.phone.replace(/[^0-9+]/g, '')}`}
+                      className="contact-call-btn"
+                    >
+                      <PhoneCall size={13} /> {fa.phone}
+                    </a>
+                    {selectedEvent.firstAidCommittee.length > 1 && (
+                      <button
+                        type="button"
+                        className="button button-outline small"
+                        style={{ padding: '6px 10px', marginLeft: 'auto', color: '#b91c1c' }}
+                        onClick={() => handleRemoveFaMember(fa.id)}
+                        title="Remove from roster"
+                      >
+                        <Trash2 size={13} />
+                      </button>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Section 4: Organizing Committee (OC) Contacts Directory */}
+            <div className="emergency-section-title">
+              <div>
+                <h3>
+                  <Users size={20} color="var(--forest)" /> Organizing Committee (OC) Member Directory
+                </h3>
+                <p style={{ margin: '4px 0 0', fontSize: '13px', color: 'var(--muted)' }}>
+                  All direct contact numbers of the hike Organizing Committee marshalls, logistics leads, and tail sweeps.
+                </p>
+              </div>
+
+              <button
+                type="button"
+                className="button button-outline small"
+                onClick={() => setIsAddingOc(!isAddingOc)}
+              >
+                <Plus size={15} /> {isAddingOc ? 'Close Form' : 'Add OC Member'}
+              </button>
+            </div>
+
+            {/* Add OC Member Form (Before Hike Starts) */}
+            {isAddingOc && (
+              <form className="prehike-add-box" onSubmit={handleAddOcMember}>
+                <h4 style={{ margin: '0 0 14px', fontSize: '15px' }}>
+                  Register OC Member (Configured Before Hiking Starts)
+                </h4>
+                <div className="form-row three-col">
+                  <label className="field">
+                    <span>Full Name</span>
+                    <input
+                      required
+                      type="text"
+                      placeholder="e.g. Kavindu Bandara"
+                      value={newOcName}
+                      onChange={(e) => setNewOcName(e.target.value)}
+                    />
+                  </label>
+                  <label className="field">
+                    <span>OC Role / Responsibility</span>
+                    <input
+                      required
+                      type="text"
+                      placeholder="e.g. Safety Marshall & Tail Sweep"
+                      value={newOcRole}
+                      onChange={(e) => setNewOcRole(e.target.value)}
+                    />
+                  </label>
+                  <label className="field">
+                    <span>Contact Phone</span>
+                    <input
+                      required
+                      type="tel"
+                      placeholder="e.g. 071 458 9201"
+                      value={newOcPhone}
+                      onChange={(e) => setNewOcPhone(e.target.value)}
+                    />
+                  </label>
+                </div>
+                <div className="form-row">
+                  <label className="field">
+                    <span>WhatsApp Number (Optional)</span>
+                    <input
+                      type="tel"
+                      placeholder="e.g. 071 458 9201"
+                      value={newOcWhatsapp}
+                      onChange={(e) => setNewOcWhatsapp(e.target.value)}
+                    />
+                  </label>
+                  <label className="field">
+                    <span>Assigned Trail Task</span>
+                    <input
+                      type="text"
+                      placeholder="e.g. Hiker roll call at checkpoints, VHF radio monitoring"
+                      value={newOcResp}
+                      onChange={(e) => setNewOcResp(e.target.value)}
+                    />
+                  </label>
+                </div>
+                <div style={{ display: 'flex', gap: '10px', marginTop: '12px' }}>
+                  <button type="submit" className="button button-pine small">
+                    <Plus size={14} /> Add OC Member to Pre-Hike Directory
+                  </button>
+                  <button
+                    type="button"
+                    className="button button-outline small"
+                    onClick={() => setIsAddingOc(false)}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            )}
+
+            <div className="emergency-contact-grid">
+              {selectedEvent.ocMembers.map((oc) => (
+                <div key={oc.id} className="contact-person-card">
+                  <div className="contact-person-top">
+                    <div className="contact-person-meta">
+                      <h4>{oc.name}</h4>
+                      <span>{oc.role}</span>
+                    </div>
+                    <span className="emergency-badge-tag">OC Member</span>
+                  </div>
+
+                  <div className="contact-person-duty">
+                    <strong>Pre-Hike Assignment:</strong> {oc.responsibility}
+                  </div>
+
+                  <div className="contact-person-actions">
+                    <a
+                      href={`tel:${oc.phone.replace(/[^0-9+]/g, '')}`}
+                      className="contact-call-btn"
+                    >
+                      <PhoneCall size={13} /> {oc.phone}
+                    </a>
+                    {oc.whatsapp && (
+                      <a
+                        href={`https://wa.me/${oc.whatsapp.replace(/[^0-9]/g, '')}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="contact-wa-btn"
+                      >
+                        <MessageSquare size={13} /> WhatsApp
+                      </a>
+                    )}
+                    {selectedEvent.ocMembers.length > 1 && (
+                      <button
+                        type="button"
+                        className="button button-outline small"
+                        style={{ padding: '6px 10px', marginLeft: 'auto', color: '#b91c1c' }}
+                        onClick={() => handleRemoveOcMember(oc.id)}
+                        title="Remove OC member"
+                      >
+                        <Trash2 size={13} />
+                      </button>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* ========================================================================= */}
         {/* VIEW 3: CREATE HIKING EVENT WITH LOCATION, TIME, AND VENUE */}
         {/* ========================================================================= */}
         {subView === 'create' && (
@@ -1172,6 +2013,176 @@ export default function EventManagementStudio() {
                 </div>
               </div>
 
+              {/* Pre-Hike Emergency Setup Section */}
+              <div className="form-card-panel">
+                <h3>4. Pre-Expedition Emergency Roster (Configured Before Hiking Starts)</h3>
+                <p className="muted" style={{ fontSize: '13px', margin: '-5px 0 16px' }}>
+                  Assign the expedition main head, nearest hospital contacts, and lead first aid responder prior to trail departure.
+                </p>
+
+                <div className="form-row three-col">
+                  <label className="field">
+                    <span>Main Head of the Event</span>
+                    <div>
+                      <UserCheck size={18} />
+                      <input
+                        required
+                        type="text"
+                        value={mainHeadName}
+                        onChange={(e) => setMainHeadName(e.target.value)}
+                        placeholder="e.g. Dumindu Yasith"
+                      />
+                    </div>
+                  </label>
+
+                  <label className="field">
+                    <span>Main Head Primary Phone</span>
+                    <div>
+                      <Phone size={18} />
+                      <input
+                        required
+                        type="tel"
+                        value={mainHeadPhone}
+                        onChange={(e) => setMainHeadPhone(e.target.value)}
+                        placeholder="e.g. 071 458 9201"
+                      />
+                    </div>
+                  </label>
+
+                  <label className="field">
+                    <span>Main Head Student Reg / Role</span>
+                    <div>
+                      <input
+                        type="text"
+                        value={mainHeadRole}
+                        onChange={(e) => setMainHeadRole(e.target.value)}
+                        placeholder="e.g. Expedition Head & Navigator"
+                      />
+                    </div>
+                  </label>
+                </div>
+
+                <div className="form-row three-col">
+                  <label className="field">
+                    <span>Nearest Hospital Name</span>
+                    <div>
+                      <Hospital size={18} />
+                      <input
+                        required
+                        type="text"
+                        value={hospitalName}
+                        onChange={(e) => setHospitalName(e.target.value)}
+                        placeholder="e.g. Peradeniya Teaching Hospital"
+                      />
+                    </div>
+                  </label>
+
+                  <label className="field">
+                    <span>Hospital Emergency Line</span>
+                    <div>
+                      <PhoneCall size={18} />
+                      <input
+                        required
+                        type="tel"
+                        value={hospitalPhone}
+                        onChange={(e) => setHospitalPhone(e.target.value)}
+                        placeholder="e.g. 081 238 8001 / 1990"
+                      />
+                    </div>
+                  </label>
+
+                  <label className="field">
+                    <span>Distance to Hospital (km)</span>
+                    <div>
+                      <input
+                        required
+                        type="number"
+                        step="0.1"
+                        value={hospitalDistance}
+                        onChange={(e) => setHospitalDistance(e.target.value)}
+                        placeholder="e.g. 8.2"
+                      />
+                    </div>
+                  </label>
+                </div>
+
+                <div className="form-row">
+                  <label className="field">
+                    <span>Hospital Physical Address</span>
+                    <div>
+                      <MapPin size={18} />
+                      <input
+                        required
+                        type="text"
+                        value={hospitalAddress}
+                        onChange={(e) => setHospitalAddress(e.target.value)}
+                        placeholder="e.g. Galaha Road, Peradeniya, Kandy"
+                      />
+                    </div>
+                  </label>
+                </div>
+
+                <div className="form-row">
+                  <label className="field">
+                    <span>First Aid Lead Responder</span>
+                    <div>
+                      <HeartPulse size={18} />
+                      <input
+                        required
+                        type="text"
+                        value={firstAidLeadName}
+                        onChange={(e) => setFirstAidLeadName(e.target.value)}
+                        placeholder="e.g. Dr. Thilina Alwis (Certified First Responder)"
+                      />
+                    </div>
+                  </label>
+
+                  <label className="field">
+                    <span>First Aid Lead Mobile</span>
+                    <div>
+                      <Phone size={18} />
+                      <input
+                        required
+                        type="tel"
+                        value={firstAidLeadPhone}
+                        onChange={(e) => setFirstAidLeadPhone(e.target.value)}
+                        placeholder="e.g. 077 912 3456"
+                      />
+                    </div>
+                  </label>
+                </div>
+
+                <div className="form-row">
+                  <label className="field">
+                    <span>Primary OC Safety Marshall</span>
+                    <div>
+                      <Users size={18} />
+                      <input
+                        required
+                        type="text"
+                        value={ocLeadName}
+                        onChange={(e) => setOcLeadName(e.target.value)}
+                        placeholder="e.g. Kavindu Bandara"
+                      />
+                    </div>
+                  </label>
+
+                  <label className="field">
+                    <span>OC Safety Marshall Mobile</span>
+                    <div>
+                      <Phone size={18} />
+                      <input
+                        required
+                        type="tel"
+                        value={ocLeadPhone}
+                        onChange={(e) => setOcLeadPhone(e.target.value)}
+                        placeholder="e.g. 075 321 8890"
+                      />
+                    </div>
+                  </label>
+                </div>
+              </div>
+
               <div className="form-actions-row">
                 <button type="submit" className="button button-pine">
                   <PlusCircle size={18} /> Create Event & Open Path Optimizer
@@ -1264,6 +2275,16 @@ export default function EventManagementStudio() {
                       }}
                     >
                       <Compass size={14} /> Best Path Studio
+                    </button>
+
+                    <button
+                      className="button button-outline small"
+                      onClick={() => {
+                        setSelectedEventId(ev.eventId);
+                        setSubView('emergency-view');
+                      }}
+                    >
+                      <ShieldAlert size={14} /> Emergency Dossier
                     </button>
                   </div>
                 </div>
