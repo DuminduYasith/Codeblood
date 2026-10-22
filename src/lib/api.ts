@@ -1,13 +1,11 @@
 /**
- * Typed REST boundary for the future FastAPI backend. The frontend currently uses
- * src/lib/data.ts fixtures to make it usable while the API is under development.
- * Do not treat fixtures as persisted club records or real authentication.
+ * Typed REST API Client for Mora Hiking Club backend services.
  */
 import type { HikingEvent, MediaAlbum } from './data';
 const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/$/, '') ?? '';
 export const isApiConfigured = Boolean(BASE_URL);
 export async function apiRequest<T>(path: string, init?: RequestInit): Promise<T> {
-  if (!BASE_URL) throw new Error('FastAPI is not configured. Set NEXT_PUBLIC_API_BASE_URL.');
+  if (!BASE_URL) throw new Error('API server is not configured. Set NEXT_PUBLIC_API_BASE_URL.');
   const response = await fetch(`${BASE_URL}${path}`, {
     ...init,
     headers: { ...(init?.body instanceof FormData ? {} : { 'Content-Type': 'application/json' }), ...init?.headers },
