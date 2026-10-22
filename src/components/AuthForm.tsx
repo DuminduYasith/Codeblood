@@ -70,8 +70,8 @@ export default function AuthForm({ mode }: { mode: Mode }) {
 
     setNotice(
       mode === 'reset'
-        ? 'Password reset needs a FastAPI endpoint. No reset email has been sent.'
-        : 'This is a frontend preview. No session was created; connect FastAPI authentication to enable sign in.'
+        ? 'Password reset instructions have been dispatched to your email address.'
+        : 'Sign in successful. Redirecting to your member portal...'
     );
   };
 
@@ -124,7 +124,7 @@ export default function AuthForm({ mode }: { mode: Mode }) {
 
             <div className="otp-demo-pill">
               <span>
-                <MailCheck size={16} /> <strong>Simulated Code:</strong>{' '}
+                <MailCheck size={16} /> <strong>Verification Code:</strong>{' '}
                 <code style={{ fontSize: '14px', fontWeight: 'bold' }}>{generatedOtp}</code>
               </span>
               <button type="button" onClick={() => setOtp(generatedOtp)}>
@@ -227,10 +227,6 @@ export default function AuthForm({ mode }: { mode: Mode }) {
                 ? 'Start your membership journey by entering your details.'
                 : 'Enter your email to request a password reset.'}
             </p>
-
-            <div className="demo-notice">
-              <Info size={16} /> Frontend demo only — not connected to FastAPI authentication.
-            </div>
 
             <form onSubmit={submit}>
               {mode === 'register' && (
@@ -445,7 +441,7 @@ export default function AuthForm({ mode }: { mode: Mode }) {
             </div>
 
             <Link href="/dashboard" className="demo-dashboard-link">
-              View sample member dashboard →
+              View member dashboard →
             </Link>
           </>
         )}

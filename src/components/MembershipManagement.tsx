@@ -429,7 +429,7 @@ export default function MembershipManagement() {
                   </div>
                 </div>
 
-                <div className="demo-notice">
+                <div className="mm-info-notice" style={{marginTop:'20px',padding:'14px 18px',background:'var(--pale)',borderRadius:'12px',display:'flex',alignItems:'center',gap:'10px',fontSize:'13px',color:'var(--forest)'}}>
                   <Info size={16} />
                   <span>
                     Your digital membership is active and synchronized with the committee registry. Show this card at
