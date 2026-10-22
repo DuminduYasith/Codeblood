@@ -56,7 +56,7 @@ export default function AuthForm({mode}:{mode:Mode}){
     </div>
    </>
   )}
-  <label className="field"><span>{mode==='register'?'University email address':'Email address'}</span><div><Mail size={18}/><input required name="email" type="email" placeholder="name@example.com" autoComplete="email"/></div></label>
+  <label className="field"><span>Email address</span><div><Mail size={18}/><input required name="email" type="email" placeholder="name@example.com" autoComplete="email"/></div></label>
   {mode!=='reset'&&<label className="field"><span>Password</span><div><LockKeyhole size={18}/><input required minLength={8} type="password" value={password} onChange={e=>setPassword(e.target.value)} placeholder="At least 8 characters" autoComplete={mode==='register'?'new-password':'current-password'}/></div></label>}
   {mode==='register'&&<label className="field"><span>Confirm password</span><div><CheckCircle2 size={18}/><input required minLength={8} type="password" value={confirmation} onChange={e=>setConfirmation(e.target.value)} placeholder="Confirm your password" autoComplete="new-password"/></div></label>}
   <button type="submit" className="button button-pine block">{mode==='login'?'Sign in':mode==='register'?'Create account':'Request reset'} <ArrowRight size={18}/></button>
