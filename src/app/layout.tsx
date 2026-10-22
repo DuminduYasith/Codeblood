@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import './membership.css';
+import './events.css';
 import SiteHeader from '@/components/SiteHeader';
 import SiteFooter from '@/components/SiteFooter';
 export const metadata: Metadata = {
